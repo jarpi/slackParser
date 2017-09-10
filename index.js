@@ -8,7 +8,7 @@ const accessLogsProcessor = require('./lib/parsers/accessLogs.js')
 
 const WATCH_PATH = process.env.WATCH_PATH || '.'
 const COLLECTION_ACCESS_LOGS = 'accessLogs'
-const CHECK_QUEUE_RETRY_INTERVAL = 1000 * 60
+const CHECK_QUEUE_RETRY_INTERVAL = 1000
 
 let collection
 MongoConnector()
@@ -19,11 +19,9 @@ MongoConnector()
 
 const watchHandler = (path) => {
     // if mongo is not ready, wait for reconnect and try to parse again the file
-    console.dir('collection')
-    console.dir(collection)
     if (!collection) {
         console.dir('DB not ready retrying in: ' + CHECK_QUEUE_RETRY_INTERVAL)
-        setTimeout(processQueue, CHECK_QUEUE_RETRY_INTERVAL)
+            setTimeout(processQueue.bind(this, collection),CHECK_QUEUE_RETRY_INTERVAL)
         queue.push(path)
         return;
     }
@@ -35,11 +33,18 @@ const watchHandler = (path) => {
     })
 }
 
-const processQueue = () => {
+const processQueue = (collection) => {
+    console.dir('Proccess queue')
+    console.dir(collection)
     const insertedOK = []
     const insertedKO = []
     // set to null when database dies
-    if (!collection) setTimeout(processQueue, CHECK_QUEUE_RETRY_INTERVAL)
+    if (!collection) {
+        console.dir('DB not ready retrying in: ' + CHECK_QUEUE_RETRY_INTERVAL)
+        setTimeout(processQueue.bind(this, collection),CHECK_QUEUE_RETRY_INTERVAL)
+        // queue.push(path)
+        return;
+    }
     queue.forEach((path) => {
         accessLogsProcessor(path, collection)
         .then((docInsertedOK) => {

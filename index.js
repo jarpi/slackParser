@@ -10,7 +10,7 @@ const WATCH_PATH = process.env.WATCH_PATH || '.'
 const COLLECTION_ACCESS_LOGS = 'accessLogs'
 const CHECK_QUEUE_RETRY_INTERVAL = 1000
 
-let collection
+var collection = null
 MongoConnector()
 .then((connection)=> {
     collection = connection.collection(COLLECTION_ACCESS_LOGS)
@@ -21,7 +21,7 @@ const watchHandler = (path) => {
     // if mongo is not ready, wait for reconnect and try to parse again the file
     if (!collection) {
         console.dir('DB not ready retrying in: ' + CHECK_QUEUE_RETRY_INTERVAL)
-            setTimeout(processQueue.bind(this, collection),CHECK_QUEUE_RETRY_INTERVAL)
+            setTimeout(processQueue,CHECK_QUEUE_RETRY_INTERVAL)
         queue.push(path)
         return;
     }
@@ -33,7 +33,7 @@ const watchHandler = (path) => {
     })
 }
 
-const processQueue = (collection) => {
+const processQueue = () => {
     console.dir('Proccess queue')
     console.dir(collection)
     const insertedOK = []
@@ -41,7 +41,7 @@ const processQueue = (collection) => {
     // set to null when database dies
     if (!collection) {
         console.dir('DB not ready retrying in: ' + CHECK_QUEUE_RETRY_INTERVAL)
-        setTimeout(processQueue.bind(this, collection),CHECK_QUEUE_RETRY_INTERVAL)
+        setTimeout(processQueue,CHECK_QUEUE_RETRY_INTERVAL)
         // queue.push(path)
         return;
     }

@@ -11,8 +11,16 @@ const COLLECTION_ACCESS_LOGS = 'accessLogs'
 const CHECK_QUEUE_RETRY_INTERVAL = 1000
 
 var collection = null
+// use await instead
 MongoConnector()
 .then((connection)=> {
+    connection.on('close', () => {
+        console.dir('Connection to Mongo closed')
+    })
+    connection.on('reconnect', () => {
+        console.dir('Connection to Mongo reopened')
+    })
+
     collection = connection.collection(COLLECTION_ACCESS_LOGS)
     return
 })
@@ -21,9 +29,8 @@ const watchHandler = (path) => {
     // if mongo is not ready, wait for reconnect and try to parse again the file
     if (!collection) {
         console.dir('DB not ready retrying in: ' + CHECK_QUEUE_RETRY_INTERVAL)
-            setTimeout(processQueue,CHECK_QUEUE_RETRY_INTERVAL)
+        setTimeout(processQueue, CHECK_QUEUE_RETRY_INTERVAL)
         queue.push(path)
-        return;
     }
 
     console.dir('File ' + path + ' was added to the directory');

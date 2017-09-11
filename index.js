@@ -25,7 +25,7 @@ MongoConnector()
     return
 })
 
-const watchHandler = (path) => {
+const watchHandler = (path, event) => {
     // if mongo is not ready, wait for reconnect and try to parse again the file
     if (!collection) {
         console.dir('DB not ready retrying in: ' + CHECK_QUEUE_RETRY_INTERVAL)
@@ -33,6 +33,7 @@ const watchHandler = (path) => {
         queue.push(path)
     }
 
+    console.dir(event)
     console.dir('File ' + path + ' was added to the directory');
     accessLogsProcessor(path, collection)
     .catch((docPathErr) => {

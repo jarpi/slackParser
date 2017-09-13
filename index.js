@@ -2,6 +2,7 @@
 
 const fs = require('fs')
 const chokidar = require('chokidar')
+const readline = require('readline')
 const queue = [];
 const MongoConnector = require('./lib/MongoConnector/MongoConnector.js')
 const accessLogsProcessor = require('./lib/parsers/accessLogs.js')
@@ -35,11 +36,41 @@ const watchHandler = (path, event) => {
 
     console.dir(event)
     console.dir('File ' + path + ' was added to the directory');
-    accessLogsProcessor(path, collection)
+    // READ new events only
+    // start from the bottom until find READ
+    getDataFromFile(path)
+    .then( data => data.map((o)=>{return JSON.parse(o)}) )
+    .then(data => {
+        console.dir(data)
+        return accessLogsProcessor(path, collection, data)
+    })
+    .then(() => {
+            // write READ to file?
+    })
     .catch((docPathErr) => {
         queue.push(docPathErr)
     })
 }
+
+const getDataFromFile = path => {
+    const data = []
+    let shouldRead = false
+    // Try to read in reverse order
+    return new Promise((resolve, reject) => {
+      console.dir('getData')
+      const rl = readline.createInterface({
+        input: fs.createReadStream(path)
+      })
+      rl.on('line', line => {
+        if (line === 'READ') return shouldRead = true
+        if (shouldRead) data.push(line)
+      })
+      rl.on('close', () =>{
+        rl.close()
+        resolve(data)
+      })
+    })
+  }
 
 const processQueue = () => {
     console.dir('Proccess queue')
@@ -65,5 +96,5 @@ const processQueue = () => {
     return
 }
 
-chokidar.watch(WATCH_PATH).on('add', watchHandler);
+chokidar.watch(WATCH_PATH).on('change', watchHandler);
 

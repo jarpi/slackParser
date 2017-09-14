@@ -2,7 +2,7 @@
 
 const fs = require('fs')
 const chokidar = require('chokidar')
-const readline = require('readline')
+const lineReader = require('reverse-line-reader');
 const queue = [];
 const MongoConnector = require('./lib/MongoConnector/MongoConnector.js')
 const accessLogsProcessor = require('./lib/parsers/accessLogs.js')
@@ -39,13 +39,18 @@ const watchHandler = (path, event) => {
     // READ new events only
     // start from the bottom until find READ
     getDataFromFile(path)
-    .then( data => data.map((o)=>{return JSON.parse(o)}) )
+    .then( data => { return data.map(o => JSON.parse(o)) })
+    // Use try catch to parse
     .then(data => {
-        console.dir(data)
+        console.dir('Process')
         return accessLogsProcessor(path, collection, data)
     })
     .then(() => {
-            // write READ to file?
+        // Append READ to the file
+        return fs.appendFile(path, 'READ', (err) => {
+            if (err) return Promise.reject('Failed to update ' + path)
+            console.dir('File updated')
+        })
     })
     .catch((docPathErr) => {
         queue.push(docPathErr)
@@ -55,26 +60,20 @@ const watchHandler = (path, event) => {
 const getDataFromFile = path => {
     const data = []
     let shouldRead = false
-    // Try to read in reverse order
     return new Promise((resolve, reject) => {
-      console.dir('getData')
-      const rl = readline.createInterface({
-        input: fs.createReadStream(path)
+      return lineReader.eachLine(path, (line, last, cb) => {
+          if (last || (line === 'READ')) {
+            cb(false)
+            return resolve(data)
+          }
+          if (line) data.push(line)
+          cb(true)
       })
-      rl.on('line', line => {
-        if (line === 'READ') return shouldRead = true
-        if (shouldRead) data.push(line)
-      })
-      rl.on('close', () =>{
-        rl.close()
-        resolve(data)
-      })
-    })
-  }
+   })
+}
 
 const processQueue = () => {
     console.dir('Proccess queue')
-    console.dir(collection)
     const insertedOK = []
     const insertedKO = []
     // set to null when database dies

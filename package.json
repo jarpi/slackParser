@@ -16,6 +16,7 @@
   "dependencies": {
     "chokidar": "^1.7.0",
     "lodash": "^4.17.4",
-    "mongodb": "^2.2.31"
+    "mongodb": "^2.2.31",
+    "reverse-line-reader": "^0.2.6"
   }
 }

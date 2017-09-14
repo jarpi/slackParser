@@ -10,6 +10,7 @@ const accessLogsProcessor = require('./lib/parsers/accessLogs.js')
 const WATCH_PATH = process.env.WATCH_PATH || '.'
 const COLLECTION_ACCESS_LOGS = 'accessLogs'
 const CHECK_QUEUE_RETRY_INTERVAL = 1000
+const READ_MARKER = 'READ'
 
 var collection = null
 // use await instead
@@ -47,7 +48,7 @@ const watchHandler = (path, event) => {
     })
     .then(() => {
         // Append READ to the file
-        return fs.appendFile(path, 'READ', (err) => {
+        return fs.appendFile(path, READ_MARKER, (err) => {
             if (err) return Promise.reject('Failed to update ' + path)
             console.dir('File updated')
         })
@@ -62,7 +63,7 @@ const getDataFromFile = path => {
     let shouldRead = false
     return new Promise((resolve, reject) => {
       return lineReader.eachLine(path, (line, last, cb) => {
-          if (last || (line === 'READ')) {
+          if (last || (line === READ_MARKER)) {
             cb(false)
             return resolve(data)
           }

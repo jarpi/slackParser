@@ -4,7 +4,9 @@
   "description": "slack, log, parser",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+	"lint": "node_modules/standard/bin/cmd.js --fix index.js lib/**/*",
+	"test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "slack",
@@ -17,6 +19,7 @@
     "chokidar": "^1.7.0",
     "lodash": "^4.17.4",
     "mongodb": "^2.2.31",
-    "reverse-line-reader": "^0.2.6"
+    "reverse-line-reader": "^0.2.6",
+    "standard": "^10.0.3"
   }
 }

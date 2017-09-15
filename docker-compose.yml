@@ -1,0 +1,35 @@
+---
+services:
+  db:
+    container_name: MongoDB
+    image: mongo:3.4.8
+    restart: always
+    volumes:
+      - MongoVolume:/data/db:rw
+  crawler:
+    container_name: SlackCrawler
+    image: "statustoday/slackcrawler"
+    restart: always
+    volumes:
+      - DataVolume:/data:rw
+    environment:
+      - SLACK_API_TOKEN=${TOKEN}
+      - DATA_PATH=/data
+  parser:
+    container_name: SlackParser
+    image: "statustoday/slackparser"
+    restart: always
+    volumes:
+      - MongoVolume:/data/db:rw
+      - DataVolume:/data:rw
+    environment:
+      - DATA_PATH=/data
+      - DB=db
+    links:
+      - db
+volumes:
+    MongoVolume:
+        driver: local
+    DataVolume:
+        driver: local
+version: "2"

@@ -1,0 +1,38 @@
+---
+services:
+  db:
+    image: mongo:3.4.8
+    restart: always
+    volumes:
+      - MongoVolume:/data/db
+    logging:
+        driver: syslog
+        options:
+            syslog-address: "tcp+tls://logs6.papertrailapp.com:10575"
+            tag: "{{.Name}}/{{.ID}}"
+  crawler:
+    image: "statustoday/slackcrawler"
+    restart: always
+    volumes:
+      - DataVolume:/data
+    logging:
+        driver: syslog
+        options:
+            syslog-address: "tcp+tls://logs6.papertrailapp.com:10575"
+            tag: "{{.Name}}/{{.ID}}"
+  parser:
+    image: "statustoday/slackparser"
+    restart: always
+    volumes:
+      - MongoVolume:/data/db
+    logging:
+        driver: syslog
+        options:
+            syslog-address: "tcp+tls://logs6.papertrailapp.com:10575"
+            tag: "{{.Name}}/{{.ID}}"
+volumes:
+    MongoVolume:
+        driver: local
+    DataVolume:
+        driver: local
+version: "2"

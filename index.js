@@ -49,7 +49,7 @@ const watchHandler = (path, event) => {
     })
     .then(() => {
         // Append READ to the file
-      return fs.appendFile(path, READ_MARKER, (err) => {
+      return fs.appendFile(path, READ_MARKER + '\n', (err) => {
         if (err) return Promise.reject('Failed to update ' + path)
         console.dir('File updated')
       })

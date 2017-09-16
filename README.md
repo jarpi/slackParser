@@ -18,10 +18,6 @@ git clone https://github.com/jarpi/slackParser.git
 
 Running:
 ```
-# Create the volumes the containers will share
-sudo docker volume create DataVolume
-sudo docker volume create MongoVolume
-
 # Build the project images
 sudo docker build -t statustoday/slackparser SLACK_CRAWLER_DIR
 sudo docker build -t statustoday/slackcrawler SLACK_PARSER_DIR

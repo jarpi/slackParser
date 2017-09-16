@@ -27,6 +27,20 @@ From SLACK_PARSER_DIR
 sudo TOKEN=YOUR_SLACK_TOKEN docker-compose up
 ```
 
+# TODO
+- Add logging
+- Better logs
+- Find a better way to handle write to disk
+- Ask PO for the behavior when rotating files
+- Refactor code
+- Add tests
+- Gulpify / Gruntify project (dev/production)
+- Add more events from slack
+- Fix lint issues
+- Deploy to server
+- Add way to track transaction and retrieve from a frontend
+
+
 author: @jarpi
 
 Feel free to open issues, comment code or requesting changes.

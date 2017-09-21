@@ -4,6 +4,8 @@ services:
     container_name: MongoDB
     image: mongo:3.4.8
     restart: always
+    ports:
+      - 27017:27017
     volumes:
       - MongoVolume:/data/db:rw
   crawler:

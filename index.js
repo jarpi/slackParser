@@ -40,10 +40,10 @@ const watchHandler = (path, event) => {
     // start from the bottom until find READ
   getDataFromFile(path)
         .then(data => {
-            console.dir(JSON.parse(data[0]))
-            return data.map(o => JSON.parse(o)) })
+            return data.map(o => JSON.parse(JSON.parse(o))) })
     // Use try catch to parse
     .then(data => {
+        console.dir(data)
       console.dir('Process')
       return accessLogsProcessor(path, collection, data)
     })
